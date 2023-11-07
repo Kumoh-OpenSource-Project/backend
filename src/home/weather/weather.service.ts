@@ -14,11 +14,16 @@ export class WeatherService {
   async getOpenWeather(type: string, lat: number, lon: number){
     const url = `${this.OPENWEATHER_API}/${type}?lat=${lat}&lon=${lon}&units=metric&lang=kr&appid=${this.OPENWEATHER_KEY}`;
 
-    console.log(url)
     try{
       const response = await axios.get(url);
-      console.log(response.data);
-      return this.weatherProcessor.currentWeather(response.data);
+
+      if(!response.data['list']){
+        return this.weatherProcessor.currentWeather(response.data);
+      }
+      else{
+        return this.weatherProcessor.weekWeather(response.data);
+      }
+      
     } catch (error) {
       console.log(error);
     }

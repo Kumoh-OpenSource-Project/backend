@@ -1,33 +1,51 @@
 import { Injectable } from "@nestjs/common";
 import { CurrentWeatherDto } from "./current-weather.dto";
 import { format } from 'date-fns';
+import { WeekWeatherDto } from "./week-weather.dto";
 
 @Injectable()
 export class WeatherProcessor{
   constructor() {}
 
   async currentWeather(data){
-    const current = new CurrentWeatherDto();
-    current.main = data['weather'][0]['main'];
-    current.description = data['weather'][0]['description'];
-    current.icon = data['weather'][0]['icon'];
-    current.temp = data['main']['temp'];
-    current.feelsLike = data['main']['feels_like'];
-    current.tempMin = data['main']['temp_min'];
-    current.tempMax = data['main']['temp_max'];
-    current.humidity = data['main']['humidity'];
-    current.windSpeed = data['wind']['speed'];
-    current.windDeg = data['wind']['deg'];
-    current.clouds = data['clouds']['all'];
-    current.sunrise = this.timeFormatting(data['sys']['sunrise']);
-    current.sunset = this.timeFormatting(data['sys']['sunset']);
-
-    console.log(current);
+    const current = this.openWeatherProcessing(data);
+    current.sunrise = this.timestampFormatting(data['sys']['sunrise']);
+    current.sunset = this.timestampFormatting(data['sys']['sunset']);
 
     return current;
   }
 
-  timeFormatting(timestamp: number){
+  async weekWeather(data){
+    const week = new WeekWeatherDto();
+    week.weathers = data['list'].map((data) => {
+      const weather = this.openWeatherProcessing(data);
+      weather.date = data['dt_txt'];
+      return weather;
+    });
+    week.sunrise = this.timestampFormatting(data['city']['sunrise']);
+    week.sunset = this.timestampFormatting(data['city']['sunset']);
+
+    return week;
+  }
+
+  openWeatherProcessing(data){
+    const weather = new CurrentWeatherDto();
+    weather.main = data['weather'][0]['main'];
+    weather.description = data['weather'][0]['description'];
+    weather.icon = data['weather'][0]['icon'];
+    weather.temp = data['main']['temp'];
+    weather.feelsLike = data['main']['feels_like'];
+    weather.tempMin = data['main']['temp_min'];
+    weather.tempMax = data['main']['temp_max'];
+    weather.humidity = data['main']['humidity'];
+    weather.windSpeed = data['wind']['speed'];
+    weather.windDeg = data['wind']['deg'];
+    weather.clouds = data['clouds']['all'];
+
+    return weather;
+  }
+
+  timestampFormatting(timestamp: number){
     const date = new Date(timestamp * 1000);
     return format(date, 'yyyy MM-dd HH:mm:ss');
   }
