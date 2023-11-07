@@ -20,12 +20,12 @@ export class WeatherProcessor{
     week.weathers = data['list'].map((data) => {
       const weather = this.openWeatherProcessing(data);
       weather.date = data['dt_txt'];
+      // weather.sunrise = ??
+      // weather.sunset = ??
       return weather;
     });
-    week.sunrise = this.timestampFormatting(data['city']['sunrise']);
-    week.sunset = this.timestampFormatting(data['city']['sunset']);
 
-    return week;
+    return week.weathers;
   }
 
   openWeatherProcessing(data){
