@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
+import { WeatherProcessor } from './weather.processor';
 
 @Injectable()
-export class HomeWeatherService {
+export class WeatherService {
   constructor(
+    private weatherProcessor:WeatherProcessor,
   ){}
 
   private readonly OPENWEATHER_API = process.env.OPENWEATHER_URL;
@@ -16,7 +18,7 @@ export class HomeWeatherService {
     try{
       const response = await axios.get(url);
       console.log(response.data);
-      return response.data;
+      return this.weatherProcessor.currentWeather(response.data);
     } catch (error) {
       console.log(error);
     }

@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { HomeWeatherService } from './home.weather.service';
+import { WeatherService } from './weather/weather.service';
 @Injectable()
 export class HomeService {
   constructor(
-    private homeWeatherService:HomeWeatherService,
+    private homeWeatherService:WeatherService,
   ){}
 
   async getWeather(type: string, lat: number, lon: number){
