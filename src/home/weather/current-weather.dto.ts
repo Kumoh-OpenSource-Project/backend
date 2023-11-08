@@ -9,8 +9,9 @@ export class CurrentWeatherDto{
   humidity: number;
   windSpeed: number;
   windDeg: number;
-  clouds: number;
-  sunrise?: string;
-  sunset?: string;
-  date?: string;
+  sunrise: string;
+  sunset: string;
+  moonrise: string;
+  moonset: string;
+  seeing:string;
 }

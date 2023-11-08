@@ -1,7 +1,4 @@
-// coordinate-conversion.ts
-
 import { Injectable } from '@nestjs/common';
-import { CoordinateDto } from './coordinate.dto';
 
 @Injectable()
 export class CoordinateTransition {
@@ -20,9 +17,11 @@ export class CoordinateTransition {
 
     private first = 0;
 
-    async lamcproj(lon: number, lat: number, x: number, y: number) {
+    async lamcproj(lon: number, lat: number) {
         let re, olon, olat, sn, sf, ro;
         let slat1, slat2, alon, alat, xn, yn, ra, theta;
+        let x = 0;
+        let y = 0;
 
         if (this.first === 0) {
             this.PI = Math.asin(1.0) * 2.0;
@@ -57,8 +56,4 @@ export class CoordinateTransition {
         return {x,y};
     }
 
-
-    async convertCoordinate(dto: CoordinateDto) {
-        return this.lamcproj(dto.lon, dto.lat, dto.x, dto.y);
-    }
 }
