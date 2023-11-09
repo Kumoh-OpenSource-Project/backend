@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { HomeService } from './home.service';
-import { AstroAPI } from './weather/astro/astro.api';
+import { AstroAPI } from './weather/api/astro.api';
 
 @Controller('home')
 export class HomeController {

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { WeatherProcessor } from './weather.processor';
-import { CoordinateTransition } from './coordinate.transition';
+import { CoordinateTransition } from './api/coordinate.transition';
 import { format } from 'date-fns';
 
 @Injectable()
@@ -18,20 +18,15 @@ export class WeatherService {
   private readonly DATAGO_KEY = process.env.DATAGO_WEATEHR_KEY;
 
   getCurrentTime(){
-    const baseTimes = [2, 5, 8, 11, 14, 17, 20, 23];
     const today = new Date();
     const baseDate = format(today, 'yyyyMMdd');
-    const currentTime = today.getHours();
-    let closestTime = baseTimes[baseTimes.length - 1];
-    
-    for (let i = 0; i < baseTimes.length; i++) {
-      if (currentTime > baseTimes[i]) {
-        closestTime = baseTimes[i];
-      } else {
-        break;
-      }
+    let currentTime;
+    if (today.getHours() === 0) {
+      currentTime = 0
+    } else {
+        currentTime = today.getHours() - 1;
     }
-    return {baseDate, baseTime: this.formatNumber(closestTime)}
+    return {baseDate, baseTime: this.formatNumber(currentTime)}
   }
 
   formatNumber(number) {
@@ -56,15 +51,15 @@ export class WeatherService {
   }
 
   async getTodayWeather(lat: number, lon: number){
-    const types = 'pageNo=1&numOfRows=700&dataType=JSON'
     const {x, y} = await this.coordinateTransition.lamcproj(lon, lat);
+    console.log(x, y);
     const {baseDate, baseTime} = this.getCurrentTime();
-    const url = `${this.DATAGO_URL}?serviceKey=${this.DATAGO_KEY}&${types}&base_date=${baseDate}&base_time=${baseTime}&nx=${x}&ny=${y}`;
+    const url = `${this.DATAGO_URL}&serviceKey=${this.DATAGO_KEY}&base_date=${baseDate}&base_time=${baseTime}&nx=${x}&ny=${y}`;
     console.log(url)
 
     try{
-      const response = await axios.get(url);
-      // return this.weatherProcessor.todayWeather(response.data);
+      const response = (await axios.get(url)).data.response.body.items.item;
+      return this.weatherProcessor.todayWeather(response, lat, lon);
     } catch (error) {
       console.log(error);
     }

@@ -7,16 +7,16 @@ export class SunMoonAPI{
   private readonly SUNMOON_KEY = process.env.SUNMOON_KEY;
 
 
-  async getSunMoon(lat: number, lon: number, date=new Date()){
-    const locdate = format(date, 'yyyyMMdd');
+  async getSunMoon(lat: number, lon: number, date: string){
+    const locdate = date.replace(/-/g, "")
     const url = `${this.SUNMOON_URL}&serviceKey=${this.SUNMOON_KEY}&locdate=${locdate}&longitude=${lon}&latitude=${lat}`;
     
     try{
       const response = (await axios.get(url)).data.response.body.items.item;
-      const sunrise = this.formattingTime(response.sunrise);
-      const sunset = this.formattingTime(response.sunset);
-      const moonrise = this.formattingTime(response.moonrise);
-      const moonset = this.formattingTime(response.moonset);
+      const sunrise = this.convertToAMPM(response.sunrise);
+      const sunset = this.convertToAMPM(response.sunset);
+      const moonrise = this.convertToAMPM(response.moonrise);
+      const moonset = this.convertToAMPM(response.moonset);
       return await {sunrise, sunset, moonrise, moonset};
 
     } catch (error) {
@@ -25,7 +25,8 @@ export class SunMoonAPI{
 
   }
 
-  formattingTime(time){
-    return time.slice(0, 2) + ':' + time.slice(2)
+  convertToAMPM(time) {
+    let date = new Date(1970, 0, 1, time.substring(0, 2), time.substring(2));
+    return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: true });
   }
 }
