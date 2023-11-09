@@ -45,10 +45,10 @@ export class WeatherService {
     try{
       const response = await axios.get(url);
       if(!response.data['list']){
-        return this.weatherProcessor.currentWeather(response.data);
+        return this.weatherProcessor.currentWeather(response.data, lat, lon);
       }
       else{
-        return this.weatherProcessor.weekWeather(response.data);
+        return this.weatherProcessor.weekWeather(response.data, lat, lon);
       }
     } catch (error) {
       console.log(error);

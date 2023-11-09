@@ -1,13 +1,16 @@
 import { Injectable } from "@nestjs/common";
 import { CurrentWeatherDto } from "./current-weather.dto";
-import { format } from 'date-fns';
 import { WeekOneDayWeatherDto, WeekWeatherDto } from "./week-weather.dto";
+import { SunMoonAPI } from "./sun-moon.api";
+import { parseISO } from "date-fns";
 
 @Injectable()
 export class WeatherProcessor{
-  constructor() {}
+  constructor(
+    private sunMoonApi: SunMoonAPI
+  ) {}
   
-  openWeatherCurrentProcessing(data){
+  async openWeatherCurrentProcessing(data, lat, lon){
     const weather = new CurrentWeatherDto();
     weather.main = data.weather[0].main;
     weather.description = data.weather[0].description;
@@ -19,15 +22,17 @@ export class WeatherProcessor{
     weather.humidity = data.main.humidity;
     weather.windSpeed = data.wind.speed;
     weather.windDeg = data.wind.deg;
-    weather.sunrise = this.timestampFormatting(data.sys.sunrise);
-    weather.sunset = this.timestampFormatting(data.sys.sunset);
-    weather.moonrise = "";
-    weather.moonset = "";
+
+    const {sunrise, sunset, moonrise, moonset} = await this.sunMoonApi.getSunMoon(lat, lon);
+    weather.sunrise = sunrise;
+    weather.sunset = sunset;
+    weather.moonrise = moonrise;
+    weather.moonset = moonset;
     weather.seeing = "";
     return weather;
   }
 
-  openWeatherWeekProcessing(data){
+  async openWeatherWeekProcessing(data, lat, lon){
     let resultMap = data.list.reduce((map, item) =>
     {
       let date = item.dt_txt.split(" ")[0];
@@ -36,10 +41,6 @@ export class WeatherProcessor{
       if (!map[date]) {
           let day = new WeekWeatherDto();
           day.date = date;
-          day.sunrise = "";
-          day.sunset = "";
-          day.moonrise = "";
-          day.moonset = "";
           day.weathers = [];
           map[date] = day;
       }
@@ -56,21 +57,29 @@ export class WeatherProcessor{
       return map;
     }, {});
     let weekWeathers: WeekWeatherDto[] = Object.values(resultMap);
+    return this.openWeatherWeekDayProcessing(weekWeathers, lat, lon);
+  }
+
+  async openWeatherWeekDayProcessing(weekWeathers, lat, lon){
+    weekWeathers = await Promise.all(weekWeathers.map(async day => {
+      const {sunrise, sunset, moonrise, moonset} = await this.sunMoonApi.getSunMoon(lat, lon, parseISO(day.date));
+      day.sunrise = sunrise;
+      day.sunset = sunset;
+      day.moonrise = moonrise;
+      day.moonset = moonset;
+      day.seeing = "";
+      return day;
+    }));
     return weekWeathers;
   }
 
-  timestampFormatting(timestamp: number){
-    const date = new Date(timestamp * 1000);
-    return format(date, 'yyyy-MM-dd HH:mm:ss');
-  }
-
-  async currentWeather(data){
-    const current = this.openWeatherCurrentProcessing(data);
+  async currentWeather(data, lat, lon){
+    const current = this.openWeatherCurrentProcessing(data, lat, lon);
     return current;
   }
 
-  async weekWeather(data){
-    const weekWeathers = this.openWeatherWeekProcessing(data);
+  async weekWeather(data, lat, lon){
+    const weekWeathers = this.openWeatherWeekProcessing(data, lat, lon);
     return weekWeathers;
   }
 }
