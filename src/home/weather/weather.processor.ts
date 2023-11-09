@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
-import { CurrentWeatherDto } from "../../common/dto/home/current-weather.dto";
-import { WeekOneDayWeatherDto, WeekWeatherDto } from "../../common/dto/home/week-weather.dto";
+import { CurrentWeatherDto } from "./current-weather.dto";
+import { WeekOneDayWeatherDto, WeekWeatherDto } from "./week-weather.dto";
 import { SunMoonAPI } from "./api/sun-moon.api";
 import { parseISO } from "date-fns";
 import { AstroAPI } from "./api/astro.api";
 import { format } from 'date-fns';
-import { TodayTimeDto, TodayWeatehrDto } from "../../common/dto/home/today-weather.dto";
+import { TodayTimeDto, TodayWeatehrDto } from "./today-weather.dto";
 
 @Injectable()
 export class WeatherProcessor{
