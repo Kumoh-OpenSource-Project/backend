@@ -13,5 +13,5 @@ export class CurrentWeatherDto{
   sunset: string;
   moonrise: string;
   moonset: string;
-  seeing:string;
+  seeing:number;
 }

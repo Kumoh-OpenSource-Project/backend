@@ -3,11 +3,14 @@ import { CurrentWeatherDto } from "./current-weather.dto";
 import { WeekOneDayWeatherDto, WeekWeatherDto } from "./week-weather.dto";
 import { SunMoonAPI } from "./sun-moon.api";
 import { parseISO } from "date-fns";
+import { AstroAPI } from "./astro/astro.api";
+import { format } from 'date-fns';
 
 @Injectable()
 export class WeatherProcessor{
   constructor(
-    private sunMoonApi: SunMoonAPI
+    private sunMoonApi: SunMoonAPI,
+    private astroApi: AstroAPI,
   ) {}
   
   async openWeatherCurrentProcessing(data, lat, lon){
@@ -28,15 +31,21 @@ export class WeatherProcessor{
     weather.sunset = sunset;
     weather.moonrise = moonrise;
     weather.moonset = moonset;
-    weather.seeing = "";
+    weather.seeing = await this.astroApi.getCurrentSeeing(lat, lon);
     return weather;
   }
 
   async openWeatherWeekProcessing(data, lat, lon){
+    let today = format(new Date(), 'yyyy-MM-dd');
+
     let resultMap = data.list.reduce((map, item) =>
     {
       let date = item.dt_txt.split(" ")[0];
       let time = item.dt_txt.split(" ")[1].substring(0, 5);
+
+      if(date === today){
+        return map;
+      }
 
       if (!map[date]) {
           let day = new WeekWeatherDto();
@@ -57,7 +66,17 @@ export class WeatherProcessor{
       return map;
     }, {});
     let weekWeathers: WeekWeatherDto[] = Object.values(resultMap);
-    return this.openWeatherWeekDayProcessing(weekWeathers, lat, lon);
+    weekWeathers = await this.openWeatherWeekDayProcessing(weekWeathers, lat, lon);
+    weekWeathers = await this.weekSeeing(weekWeathers, lat, lon);
+    return weekWeathers;
+  }
+
+  async weekSeeing(weekWeathers, lat, lon){
+    const seeings = await this.astroApi.getWeekSeeing(lat, lon);
+    for(let i = 0; i < weekWeathers.length; i++) {
+    weekWeathers[i].seeing = seeings[i];
+    }
+    return weekWeathers;
   }
 
   async openWeatherWeekDayProcessing(weekWeathers, lat, lon){
@@ -67,7 +86,6 @@ export class WeatherProcessor{
       day.sunset = sunset;
       day.moonrise = moonrise;
       day.moonset = moonset;
-      day.seeing = "";
       return day;
     }));
     return weekWeathers;
