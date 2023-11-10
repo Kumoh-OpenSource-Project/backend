@@ -8,7 +8,6 @@ export class HomeController {
 
   @Get()
   async getWeather(@Query('type') type: string, @Query('lat') lat: number, @Query('lon') lon:number){
-    // console.log(lat, lon);
     return await this.homeService.getWeather(type, lat, lon);
   }
 

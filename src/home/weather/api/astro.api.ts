@@ -46,7 +46,7 @@ export class AstroAPI{
     } else if (weather.includes("snow")) {
         return 8;
     } else {
-        return 0; // weather 문자열이 어느 경우에도 해당하지 않을 때 반환하는 값
+        return 0;
     }
   }
 
@@ -59,6 +59,7 @@ export class AstroAPI{
       return response[idx].seeing;
     } catch (error) {
       console.log(error);
+      return error;
     }
   }
 
@@ -76,6 +77,7 @@ export class AstroAPI{
       return seeings;
     } catch (error) {
       console.log(error);
+      return error;
     }
   }
 

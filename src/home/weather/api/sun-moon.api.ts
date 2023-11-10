@@ -21,6 +21,7 @@ export class SunMoonAPI{
 
     } catch (error) {
       console.log(error);
+      return error;
     }
 
   }

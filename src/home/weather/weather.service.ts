@@ -47,6 +47,7 @@ export class WeatherService {
       }
     } catch (error) {
       console.log(error);
+      return error;
     }
   }
 
@@ -62,6 +63,7 @@ export class WeatherService {
       return this.weatherProcessor.todayWeather(response, lat, lon);
     } catch (error) {
       console.log(error);
+      return error;
     }
   }
   
