@@ -25,11 +25,9 @@ export class KakaoStrategy extends PassportStrategy(Strategy) {
     const properties = _.mapKeys(_json.properties, (v, k) => {
       return _.camelCase(k);
     });
-    console.log(_json.id)
 
     const searchedUser = await this.userRepo.findOne({ where: {kakaoId: _json.id} });
-    console.log(searchedUser); // 또는 필요한 처리
-
+    
     if(searchedUser){
       const payload = {
         serviceId: searchedUser.id,
@@ -41,25 +39,27 @@ export class KakaoStrategy extends PassportStrategy(Strategy) {
         },
       };
       done(null, payload)
+    }else{
+      const makedUser = this.userRepo.create({
+        name: _json.properties.nickname,
+        nickName: _json.properties.nickname,
+        level: "수성",
+        kakaoId: _json.id,
+      });
+      const savedUser = await this.userRepo.save(makedUser);
+  
+      const payload = {
+        serviceId: savedUser.id,
+        profile: profileRest,
+        properties,
+        token: {
+          accessToken,
+          refreshToken,
+        },
+      };
+      done(null, payload);
+      }
     }
 
-    const makedUser = this.userRepo.create({
-      name: _json.properties.nickname,
-      nickName: _json.properties.nickname,
-      level: "수성",
-      kakaoId: _json.id,
-    });
-    const savedUser = await this.userRepo.save(makedUser);
-
-    const payload = {
-      serviceId: savedUser.id,
-      profile: profileRest,
-      properties,
-      token: {
-        accessToken,
-        refreshToken,
-      },
-    };
-    done(null, payload);
-    }
+    
 }
