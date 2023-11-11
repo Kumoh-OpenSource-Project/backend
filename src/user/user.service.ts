@@ -42,7 +42,7 @@ export class UserService {
     fixUserInfo: UserInfoDto
   ){
       
-    if(fixUserInfo.userNickName === undefined){ throw new BadRequestException(['올바르지 않은 접근입니다. 11'])};
+    if(fixUserInfo.userNickName === undefined){ throw new BadRequestException(['올바르지 않은 접근입니다. 수정할 nickName이 존재하지 않습니다.'])};
     const user = await this.userRepo.findOneOrFail({
       where: {id: serviceId},
       });
