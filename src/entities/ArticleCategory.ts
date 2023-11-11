@@ -1,9 +1,9 @@
-import { Column, Entity, OneToMany } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Article } from "./Article";
 
 @Entity("article_category", { schema: "StarHub" })
 export class ArticleCategory {
-  @Column("int", { primary: true, name: "id" })
+  @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
 
   @Column("varchar", { name: "name", nullable: true, length: 20 })

@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  PrimaryGeneratedColumn,
 } from "typeorm";
 import { Article } from "./Article";
 import { UserCommentLike } from "./UserCommentLike";
@@ -12,7 +13,7 @@ import { UserCommentLike } from "./UserCommentLike";
 @Index("FK_article_TO_comment_1", ["articleId"], {})
 @Entity("comment", { schema: "StarHub" })
 export class Comment {
-  @Column("int", { primary: true, name: "id" })
+  @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
 
   @Column("int", { name: "article_id" })

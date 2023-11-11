@@ -1,8 +1,8 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity("events", { schema: "StarHub" })
 export class Events {
-  @Column("int", { primary: true, name: "id" })
+  @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
 
   @Column("varchar", { name: "title", nullable: true, length: 50 })

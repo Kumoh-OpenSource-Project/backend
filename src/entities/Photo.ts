@@ -4,7 +4,7 @@ import { Article } from "./Article";
 @Index("FK_article_TO_photo_1", ["articleId"], {})
 @Entity("photo", { schema: "StarHub" })
 export class Photo {
-  @Column("int", { primary: true, name: "id" })
+  @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
 
   @Column("int", { name: "article_id" })

@@ -6,7 +6,7 @@ import { User } from "./User";
 @Index("FK_user_TO_user_like_1", ["userId"], {})
 @Entity("user_like", { schema: "StarHub" })
 export class UserLike {
-  @Column("int", { primary: true, name: "id" })
+  @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
 
   @Column("int", { name: "user_id" })
