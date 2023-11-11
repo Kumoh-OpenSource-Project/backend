@@ -1,14 +1,13 @@
 import { Controller, Get, Header, HttpStatus, Query, Render, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { UserAuthGuard } from './user.auth.guard';
+import { UserAuthGuard } from '../guard/user.auth.guard';
 
 @Controller('auth')
 export class AuthController {
-    constructor( ) { }
     
     @Get()
     @UseGuards(AuthGuard('kakao'))
-    kakaoLogin() {
+    async kakaoLogin() {
       return HttpStatus.OK;
     }
 
@@ -29,7 +28,6 @@ export class AuthController {
             token: { accessToken, refreshToken },
         },
         } = req;
-    // 직접 JSON을 반환
     return {
       serviceId,
       id,

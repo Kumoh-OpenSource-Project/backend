@@ -10,7 +10,7 @@ import { PassportModule } from '@nestjs/passport';
     TypeOrmModule.forFeature([
       User
     ]),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    // PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
   controllers:[AuthController],
   providers: [KakaoStrategy],
