@@ -72,4 +72,19 @@ export class UserService {
     return user;
   }
 
+  async deleteUserInfo(serviceId: number){
+    const user = await this.userRepo.findOneOrFail({
+      where: {id: serviceId},
+    }
+      );
+      if(!user){throw new BadRequestException(['사용자가 존재하지 않습니다.'])}
+  
+    try{
+      await this.userRepo.remove(user);
+      return user;
+    }catch(error){
+      throw error;
+    }
+  }
+
 }

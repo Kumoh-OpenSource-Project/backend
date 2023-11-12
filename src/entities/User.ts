@@ -12,7 +12,7 @@ export class User {
   @Column("varchar", { name: "name", nullable: true, length: 100 })
   name: string | null;
 
-  @Column("varchar", { name: "nick_name", nullable: true, length: 20 })
+  @Column("varchar", { name: "nick_name", nullable: true, length: 20, unique: true })
   nickName: string | null;
 
   @Column("varchar", { name: "level", nullable: true, length: 20 })

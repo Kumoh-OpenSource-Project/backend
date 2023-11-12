@@ -40,6 +40,7 @@ export class UserAuthGuard implements CanActivate {
       }
       
       return true;
+
     } catch (error) {
       throw new UnauthorizedException('토큰의 권한이 없습니다.');
     }
