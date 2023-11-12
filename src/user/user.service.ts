@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { id } from 'date-fns/locale';
 import { UserInfoDto } from 'src/common/dto/user/user.dto';
+import { UserAllInfoDto } from 'src/common/dto/user/userAllInfo.dto';
 import { User } from 'src/entities/User';
 import { Repository } from 'typeorm';
 
@@ -37,13 +38,33 @@ export class UserService {
     throw new BadRequestException(['올바르지 않은 요청입니다.']);
  }
 
+ async fixUserAllInfo(
+  serviceId: number,
+   fixUserAllInfo: UserAllInfoDto
+ ){
+    
+  if(!fixUserAllInfo.userImage || !fixUserAllInfo.userNickName){
+    throw new BadRequestException(['올바르지 않은 요청입니다.']);
+  }
+    const user = await this.userRepo.findOne({
+      where: {id: serviceId},
+    });
+
+    if(!user) {throw new NotFoundException([` ${serviceId} 사용자가 존재하지 않습니다.`]);}
+
+    user.nickName = fixUserAllInfo.userNickName;  
+    user.profilePhoto = fixUserAllInfo.userImage;        
+    await this.userRepo.save(user);  
+    return user;
+  }
+
   async fixUserNickname(
     serviceId: number,
     fixUserInfo: UserInfoDto
   ){
       
     if(fixUserInfo.userNickName === undefined){ throw new BadRequestException(['올바르지 않은 접근입니다. 수정할 nickName이 존재하지 않습니다.'])};
-    const user = await this.userRepo.findOneOrFail({
+    const user = await this.userRepo.findOne({
       where: {id: serviceId},
       });
 
@@ -61,7 +82,7 @@ export class UserService {
   ){
     if(fixUserInfo.userImage === undefined){ throw new BadRequestException(['올바르지 않은 접근입니다. 요청하는 이미지url이 없습니다.'])};
     
-    const user = await this.userRepo.findOneOrFail({
+    const user = await this.userRepo.findOne({
       where: {id: serviceId},
      });
 
@@ -73,7 +94,7 @@ export class UserService {
   }
 
   async deleteUserInfo(serviceId: number){
-    const user = await this.userRepo.findOneOrFail({
+    const user = await this.userRepo.findOne({
       where: {id: serviceId},
     }
       );

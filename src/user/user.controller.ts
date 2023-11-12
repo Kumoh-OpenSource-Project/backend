@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Put, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserAuthGuard } from 'src/guard/user.auth.guard';
 import { UserInfoDto } from 'src/common/dto/user/user.dto';
+import { UserAllInfoDto } from 'src/common/dto/user/userAllInfo.dto';
 
 @UseGuards(UserAuthGuard)
 @Controller('user')
@@ -25,6 +26,14 @@ export class UserController {
         @Body() fixedUserDto: UserInfoDto
     ){
         return await this.userService.fixUserInfo(serviceId, fixedUserDto)
+    }
+
+    @Put(':id')
+    async fixUserAllInfo(
+        @Param('id') serviceId: number, 
+        @Body() fixedUserDto: UserAllInfoDto
+    ){
+        return await this.userService.fixUserAllInfo(serviceId, fixedUserDto)
     }
 
     @Delete(':id')

@@ -48,9 +48,7 @@ export class UserAuthGuard implements CanActivate {
 
   private validateUser(userId): boolean {
     const existingUser = this.userRepo.findOne({ where: { kakaoId: userId } });
-    if(existingUser){ return true; }
-
-    return false;
-
+    if(!existingUser){ return false; }
+    return true;
   }
 }
