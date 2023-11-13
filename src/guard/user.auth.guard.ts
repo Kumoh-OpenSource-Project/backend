@@ -1,13 +1,8 @@
-// auth.guard.ts
-
 import { Injectable, ExecutionContext, UnauthorizedException, CanActivate } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { User } from '../entities/User';
 import { Repository } from 'typeorm';
-
-
-
 
 @Injectable()
 export class UserAuthGuard implements CanActivate {
@@ -18,7 +13,7 @@ export class UserAuthGuard implements CanActivate {
     private readonly userRepo : Repository<User>,
   ){}
   
-  async canActivate(context: ExecutionContext): Promise<boolean> { 
+  async canActivate(context: ExecutionContext) { 
     const request = context.switchToHttp().getRequest();
     const accessToken = request.headers['authorization'];
 
@@ -27,7 +22,6 @@ export class UserAuthGuard implements CanActivate {
     }
 
     try {
-
       const userInfoHeaders = {
         Authorization: accessToken,
       };
@@ -39,8 +33,8 @@ export class UserAuthGuard implements CanActivate {
         throw new UnauthorizedException('유저가 유효하지 않습니다.');
       }
       
-      return true;
-
+      return userId;
+    
     } catch (error) {
       throw new UnauthorizedException('토큰의 권한이 없습니다.');
     }
@@ -48,7 +42,7 @@ export class UserAuthGuard implements CanActivate {
 
   private validateUser(userId): boolean {
     const existingUser = this.userRepo.findOne({ where: { kakaoId: userId } });
-    if(!existingUser){ return false; }
-    return true;
+    if(existingUser){ return true; }
+    return false;
   }
 }

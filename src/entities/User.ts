@@ -1,7 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Article } from "./Article";
 import { UserClipped } from "./UserClipped";
-import { UserCommentLike } from "./UserCommentLike";
 import { UserLike } from "./UserLike";
 
 @Entity("user", { schema: "StarHub" })
@@ -29,9 +28,6 @@ export class User {
 
   @OneToMany(() => UserClipped, (userClipped) => userClipped.user)
   userClippeds: UserClipped[];
-
-  @OneToMany(() => UserCommentLike, (userCommentLike) => userCommentLike.user)
-  userCommentLikes: UserCommentLike[];
 
   @OneToMany(() => UserLike, (userLike) => userLike.user)
   userLikes: UserLike[];
