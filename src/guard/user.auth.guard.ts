@@ -11,8 +11,7 @@ export class UserAuthGuard implements CanActivate {
     constructor(
     @InjectRepository(User)
     private readonly userRepo : Repository<User>,
-  ){}
-  
+  ){} 
   async canActivate(context: ExecutionContext) { 
     const request = context.switchToHttp().getRequest();
     const accessToken = request.headers['authorization'];
@@ -27,22 +26,15 @@ export class UserAuthGuard implements CanActivate {
       };
 
       const { data } = await axios.get(this.userInfoUrl, { headers: userInfoHeaders });
-      const userId = data.id; 
+      const userKakaoId = data.id; 
+      const existingUser = await this.userRepo.findOne({ where: { kakaoId: userKakaoId } });
+      if(!existingUser){ throw new UnauthorizedException('유저가 유효하지 않습니다')}
+      const userId =existingUser.id; 
+      request.userId = userId;
 
-      if (!this.validateUser(userId)) {
-        throw new UnauthorizedException('유저가 유효하지 않습니다.');
-      }
-      
-      return userId;
-    
+      return true;
     } catch (error) {
       throw new UnauthorizedException('토큰의 권한이 없습니다.');
     }
-  }
-
-  private validateUser(userId): boolean {
-    const existingUser = this.userRepo.findOne({ where: { kakaoId: userId } });
-    if(existingUser){ return true; }
-    return false;
   }
 }

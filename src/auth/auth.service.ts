@@ -34,12 +34,15 @@ export class AuthService {
               const existingUser = await this.userRepo.findOne({ where: { kakaoId: userId } });
 
               if(!existingUser){
-                    const makedUser = await  this.userRepo.create({
-                    name: data.properties.nickname,
-                    nickName: data.properties.nickname,
-                    level: "수성",
-                    kakaoId: data.id,
-                });
+                    const makedUser = this.userRepo.create({
+                      name: data.properties.nickname,
+                      nickName: data.properties.nickname,
+                      level: "수성",
+                      kakaoId: data.id,
+                      profilePhoto: `""fh`
+                    });
+                
+                await this.userRepo.save(makedUser);
                 return makedUser;
               }
 
