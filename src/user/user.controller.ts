@@ -13,6 +13,7 @@ export class UserController {
     @Get()
     async getUserInfo(@UserId() userId : number) {
         return await this.userService.getOneUserInfo(userId);
+        
     }
 
     @Patch(':id')
@@ -32,8 +33,9 @@ export class UserController {
     }
 
     @Delete(':id')
-    async deleteUserInfo(@Param('id') serviceId: number){
-            return await this.userService.deleteUserInfo(serviceId)
+    async deleteUserInfo(@UserId() userId : number){
+
+            return await this.userService.deleteUserInfo(userId)
     }
     
 }
