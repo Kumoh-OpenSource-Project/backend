@@ -6,6 +6,8 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { HomeModule } from './home/home.module';
 import { UserModule } from './user/user.module';
+import { ArticleController } from './article/article.controller';
+import { ArticleModule } from './article/article.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -24,6 +26,7 @@ import { UserModule } from './user/user.module';
   AuthModule,
   HomeModule,
   UserModule,
+  ArticleModule,
 ],
   controllers: [AppController],
   providers: [AppService],

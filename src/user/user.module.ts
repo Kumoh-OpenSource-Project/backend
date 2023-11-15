@@ -7,7 +7,7 @@ import { User } from 'src/entities/User';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      User
+      User,
     ]),
   ],
   controllers:[UserController],

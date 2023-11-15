@@ -34,7 +34,7 @@ export class Article {
   contextText: string | null;
 
   @Column("date", { name: "date", nullable: true })
-  date: string | null;
+  date: Date | null;
 
   @Column("int", { name: "like", nullable: true })
   like: number | null;
