@@ -1,4 +1,4 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { Repository } from 'typeorm';
@@ -7,6 +7,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ArticleService {
+
+  private readonly PAGESIZE = 10;
+
   constructor( 
     @InjectRepository(Article)
     private articleRepo : Repository<Article>
@@ -28,93 +31,43 @@ export class ArticleService {
     return '작성완료';  
 }
 
-
-  // findAll() {
-  //   return this.articleRepo.find();
-  //   }
-
-
-  async findScopeArticle(id?: number){
-
-    if(id){
-      const article = await this.articleRepo.findOne({
-        where: 
-        { 
-          categoryId: 1,
-          id: id,
-        },
-         });
-
-      if(!article){
-        throw new BadRequestException(['찾는 게시글이 존재하지 않습니다.']);
-      }
-     return article;
-    }
-    
+  async findAllArticle(type: number, offset: number){
     const articles = await this.articleRepo.find({
-       where: { categoryId: 1 },
-       order: { id: 'DESC' }, });
+      where: { categoryId: type},
+      order: { id: 'DESC'},
+      take: this.PAGESIZE,
+      skip: offset * this.PAGESIZE,
+       });
     return articles;
   }
 
-  async findPlaceArticle(id?: number){
-    
-    if(id){
-      const article = await this.articleRepo.findOne({
-        where: 
-        { 
-          categoryId: 2,
-          id: id,
-        },
-         });
+  async findOneArticle(articleId: number){
+    const article = await this.articleRepo.findOne({
+            where: { id: articleId},
+    });
+    if (!article) { throw new NotFoundException('해당하는 게시글이 없습니다.'); }
 
-      if(!article){
-        throw new BadRequestException(['찾는 게시글이 존재하지 않습니다.']);
-      }
-     return article;
-    }
-    const articles = await this.articleRepo.find({
-      where: { categoryId: 2 },
-      order: { id: 'DESC' }, });
-   return articles;
+    return article;
   }
 
-  async   findPhotoArticle(id?: number){
-    
-    if(id){
-      const article = await this.articleRepo.findOne({
-        where: 
-        { 
-          categoryId: 3,
-          id: id,
-        },
-         });
-         if(!article){
-          throw new BadRequestException(['찾는 게시글이 존재하지 않습니다.']);
-        }
-       return article;
-    }
-
-    const articles = await this.articleRepo.find({
-      where: { categoryId: 3 },
-      order: { id: 'DESC' }, });
-   return articles;
+  async update(
+    articleId: number,
+    userId: number,
+    updateArticleDto: UpdateArticleDto, 
+  ) {
+      const article = await this.findOneArticle(articleId);
+      if(article.writerId !== userId){ throw new UnauthorizedException(['게시글을 수정할 권한이 없습니다.'])};
+      article.contextText = updateArticleDto.contextText;
+      await this.articleRepo.save(article);
+      return [`${articleId}번 게시글 수정 완료`]
   }
 
-
-
-
-  // findOne(id: number) {
-  //   return `This action returns a #${id} article`;
-  // }
-
-  // update(id: number, updateArticleDto: UpdateArticleDto) {
-  //   return `This action updates a #${id} article`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} article`;
-  // }
+  async remove(articleId: number, userId: number) {
+    const article = await this.findOneArticle(articleId);
+    if(article.writerId !== userId){ throw new UnauthorizedException(['게시글을 삭제할 권한이 없습니다.'])};
+    await this.articleRepo.remove(article);
+    return [`${articleId}번 게시글 삭제 완료`]
+  }
 
 
 }
