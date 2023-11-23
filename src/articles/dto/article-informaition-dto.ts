@@ -1,12 +1,16 @@
-import { IsIn, IsNotEmpty, IsNumber, IsNumberString, IsString } from 'class-validator';
+import { IsIn, IsNotEmpty, IsNumberString, IsOptional, IsString, MinLength } from 'class-validator';
 import { BadRequestException } from '@nestjs/common';
-import { Transform, Type } from 'class-transformer';
 
 export class ArticleInformationDto {
+    @IsOptional()  
     @IsIn(['scope', 'place', 'photo'])
     @IsString()
-    @IsNotEmpty()
-    type: string;
+    type?: string;
+
+    @IsOptional()
+    @IsString()
+    @MinLength(2, {message: '최소 두글자 이상 작성해주세요.'})
+    search?: string;
 
     @IsNumberString()
     @IsNotEmpty()
