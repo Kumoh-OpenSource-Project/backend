@@ -34,9 +34,10 @@ export class ArticlesController {
 
   @Get('/:id')
   async findOneArticleById(
-    @Param('id', new ParseIntPipe()) articleId: number
+    @Param('id', new ParseIntPipe()) articleId: number,
+    @UserId() userId: number,
   ){
-    return await this.articleService.findOneArticle(articleId);
+    return await this.articleService.findArticle(articleId, userId);
   }
 
   @Post()

@@ -39,7 +39,6 @@ export class ArticlesService {
       const isLikedByUser = await this.likeRepo.findOne({
         where: { userId, articleId: article.id },
       });
-  
       const isClippedByUser = await this.clippingRepo.findOne({
         where: { userId, articleId: article.id },
       });
@@ -65,6 +64,57 @@ export class ArticlesService {
     }
     return articlesWithStatus;
   }
+
+
+  async findArticle(articleId: number, userId: number){
+    const article = await this.articleRepo.findOne({
+            where: { id: articleId},
+            relations: ['photos', 'writer', 'comments' ]
+    });
+    if (!article) { throw new NotFoundException('해당하는 게시글이 없습니다.'); }
+
+    const isLikedByUser = await this.likeRepo.findOne({
+      where: { userId, articleId: article.id },
+    });
+    const isClippedByUser = await this.clippingRepo.findOne({
+      where: { userId, articleId: article.id },
+    });
+    const imageUrlList = article.photos.map(photo => photo.imageUrl); 
+    const commentCount = article.comments.length;
+    const comments = await this.commentRepo.find({
+      where: {articleId: articleId},
+      relations: ['user']
+    });
+    const commentsWithStatus = [];
+    
+    for (const comment of comments) {
+      commentsWithStatus.push({
+        id:comment.id,
+        contextText: comment.contextText,
+        date: comment.date,
+        userId: comment.userId,
+        userNickName: comment.user.nickName,
+        userLevel: comment.user.level,
+      })
+    }
+    return {
+      id: article.id,
+      writerId: article.writerId,
+      writerNickName: article.writer?.nickName,
+      writerLevel:article.writer?.level,
+      title: article.title,
+      contextText: article.contextText,
+      date: article.date,
+      like: article.like,
+      clipped: article.clipped,
+      isLike: !!isLikedByUser,
+      isClipped: !!isClippedByUser,
+      photo: imageUrlList,
+      comments: commentsWithStatus,
+    }
+  }
+
+
   
   async findOneArticle(articleId: number){
     const article = await this.articleRepo.findOne({
@@ -249,7 +299,6 @@ async findArticleByContext(searchString: string, userId: number,  offset: number
 
     const commentsWithStatus = [];
     for (const comment of comments) {
-
       commentsWithStatus.push({
         id:comment.id,
         articleId: comment.articleId,
@@ -257,9 +306,9 @@ async findArticleByContext(searchString: string, userId: number,  offset: number
         date: comment.date,
         userId: comment.userId,
         userNickName: comment.user.nickName,
+        userLevel: comment.user.level,
       })
     }
-
     return commentsWithStatus;
   }
 
@@ -290,5 +339,4 @@ async findArticleByContext(searchString: string, userId: number,  offset: number
     await this.commentRepo.remove(comment);
     return '삭제완료';
   }
-
 }
