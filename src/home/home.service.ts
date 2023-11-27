@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { WeatherService } from './weather/weather.service';
-import { WeatherProcessor } from './weather/weather.processor';
+import { WeatherProcessor } from './weather/processors/weather.processor';
 @Injectable()
 export class HomeService {
   constructor(
