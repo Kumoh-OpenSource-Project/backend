@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Timestamp,
 } from "typeorm";
 import { Article } from "./Article";
 import { User } from "./User";
@@ -22,8 +23,8 @@ export class Comment {
   @Column("varchar", { name: "context_text", nullable: true, length: 200 })
   contextText: string | null;
 
-  @Column("date", { name: "date", nullable: true })
-  date: string | null;
+  @Column("timestamp", { name: "date", nullable: true })
+  date: Timestamp | null;
 
   @Column("int", { name: "user_id"})
   userId: number;
@@ -32,9 +33,11 @@ export class Comment {
     onDelete: "NO ACTION",
     onUpdate: "NO ACTION",
   })
+  
   @JoinColumn([{ name: "article_id", referencedColumnName: "id" }])
   article: Article;
   
+  @ManyToOne(() => User, user => user.id) 
   @JoinColumn([{ name: "user_id", referencedColumnName: "id" }])
   user: User;
 

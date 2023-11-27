@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Timestamp,
 } from "typeorm";
 import { ArticleCategory } from "./ArticleCategory";
 import { User } from "./User";
@@ -33,8 +34,8 @@ export class Article {
   @Column("mediumtext", { name: "context_text", nullable: true })
   contextText: string | null;
 
-  @Column("date", { name: "date", nullable: true })
-  date: Date | null;
+  @Column("timestamp", { name: "date", nullable: true })
+  date: Timestamp | null;
 
   @Column("int", { name: "like", nullable: true })
   like: number | null;
