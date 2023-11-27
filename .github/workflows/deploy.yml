@@ -1,0 +1,112 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: ["main", "OPEN-44-CI/CD-구축"]
+  workflow_run:
+    workflows: ["Test"]
+    types: [completed]
+    branches: ["main", "OPEN-44-CI/CD-구축"]
+
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+      IMAGE_TAG: latest
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SG_NAME: ${{ secrets.AWS_SG_NAME }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Get Github action IP
+      id: ip
+      uses: haythem/public-ip@v1.2
+
+    - name: Create .env file
+      run: |
+        echo "DATABASE_TYPE=${{ secrets.DATABASE_TYPE }}" >> .env
+        echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
+        echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" >> .env
+        echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> .env
+        echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
+        echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
+        echo "OPENWEATHER_URL=${{secrets.OPENWEATHER_URL}}" >> .env
+        echo "OPENWEATHER_KEY=${{secrets.OPENWEATHER_KEY}}" >> .env
+        echo "DATAGO_URL=${{secrets.DATAGO_URL}}" >> .env
+        echo "DATAGO_WEATHER_KEY=${{secrets.DATAGO_WEATHER_KEY}}" >> .env
+        echo "SUN_URL=${{secrets.SUN_URL}}" >> .env
+        echo "SUNMOON_URL=${{secrets.SUNMOON_URL}}" >> .env
+        echo "SUNMOON_KEY=${{secrets.SUNMOON_KEY}}" >> .env
+        echo "ASTRO_URL=${{secrets.ASTRO_URL}}" >> .env
+        echo "ASTRO_CURRENT=${{secrets.ASTRO_CURRENT}}" >> .env
+        echo "ASTRO_WEEK=${{secrets.ASTRO_WEEK}}" >> .env
+        echo "KAKAO_API_KEY=${{secrets.KAKAO_API_KEY}}" >> .env
+        echo "CODE_REDIRECT_URI=${{secrets.CODE_REDIRECT_URI}}" >> .env
+        echo "KAKAO_LOGIN_URL${{secrets.KAKAO_LOGIN_URL}}" >> .env
+        echo "KAKAO_REDIRECT_URI=${{secrets.KAKAO_REDIRECT_URI}}" >> .env
+        echo "KAKAO_USERINFO_URI=${{secrets.KAKAO_USERINFO_URI}}" >> .env
+
+    - name: Install dependencies
+      run: npm install
+  
+    - name: Run npm build
+      run: npm run build
+      
+    - name: Build Docker image
+      run: docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Push Docker image to ECR
+      run: docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    - name: Add Github Actions IP to Security group
+      run: |
+        aws ec2 authorize-security-group-ingress --group-name ${{ env.AWS_SG_NAME }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32    
+      env:
+        AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
+
+    - name: SSH into EC2 and deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ env.EC2_HOST }}
+        username: ${{ env.EC2_USERNAME }}
+        key: ${{ env.SSH_PRIVATE_KEY }}
+        script: |
+          # Pull and run the Docker image on EC2
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}
+          echo "${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+          docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          docker stop ${{ env.ECR_REPOSITORY }} || true
+          docker rm ${{ env.ECR_REPOSITORY }} || true
+          docker run -d --name ${{ env.ECR_REPOSITORY }} -p 3000:3000 ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+
+    - name: Remove Github Actions IP from security group
+      run: |
+        aws ec2 revoke-security-group-ingress --group-name ${{ env.AWS_SG_NAME }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+      env:
+        AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
