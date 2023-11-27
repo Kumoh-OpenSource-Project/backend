@@ -18,6 +18,10 @@ export class CoordinateTransition {
     private first = 0;
 
     async lamcproj(lon: number, lat: number) {
+        if (lon < -180 || lon > 180 || lat < -90 || lat > 90) {
+            throw new Error('lon should be in the range of -180 to 180 and lat should be in the range of -90 to 90');
+        }
+        
         let re, olon, olat, sn, sf, ro;
         let slat1, slat2, alon, alat, xn, yn, ra, theta;
         let x = 0;

@@ -53,7 +53,7 @@ export class WeatherService {
 
   async getTodayWeather(lat: number, lon: number){
     const {x, y} = await this.coordinateTransition.lamcproj(lon, lat);
-    console.log(x, y);
+    console.log(`coords : ${x}, ${y}`);
     const {baseDate, baseTime} = this.getCurrentTime();
     const url = `${this.DATAGO_URL}&serviceKey=${this.DATAGO_KEY}&base_date=${baseDate}&base_time=${baseTime}&nx=${x}&ny=${y}`;
     console.log(url)
