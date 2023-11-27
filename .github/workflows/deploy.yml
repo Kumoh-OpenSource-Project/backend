@@ -2,11 +2,11 @@ name: Deploy to EC2
 
 on:
   push:
-    branches: ["main", "OPEN-44-CI/CD-구축"]
+    branches: ["main"]
   workflow_run:
     workflows: ["Test"]
     types: [completed]
-    branches: ["main", "OPEN-44-CI/CD-구축"]
+    branches: ["main"]
 
 
 jobs:
