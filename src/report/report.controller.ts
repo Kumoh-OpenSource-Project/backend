@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, ValidationPipe } from '@nestjs/common';
 import { ReportService } from './report.service';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UserId } from 'src/common/decorator/user.id.decorator';
@@ -11,7 +11,7 @@ export class ReportController {
 
   @Post()
   async create(
-    @Body() createReportDto: CreateReportDto,
+    @Body(ValidationPipe) createReportDto: CreateReportDto,
     @UserId() userId: number
     ) {
     return await this.reportService.create(createReportDto, userId);
