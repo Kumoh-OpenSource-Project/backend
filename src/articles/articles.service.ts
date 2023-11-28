@@ -48,6 +48,7 @@ export class ArticlesService {
 
       articlesWithStatus.push({
         id: article.id,
+        categoryId: article.categoryId,
         writerId: article.writerId,
         writerNickName: article.writer?.nickName,
         writerLevel:article.writer?.level,
