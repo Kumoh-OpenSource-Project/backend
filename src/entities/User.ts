@@ -31,4 +31,5 @@ export class User {
 
   @OneToMany(() => UserLike, (userLike) => userLike.user)
   userLikes: UserLike[];
+
 }

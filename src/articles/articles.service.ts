@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article-dto';
 import { UpdateArticleDto } from './dto/update-article-dto';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Article } from 'src/entities/Article';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Photo } from 'src/entities/Photo';
@@ -27,31 +27,94 @@ export class ArticlesService {
   async findAllArticle(type: number, userId: number, offset: number) {
     const articles = await this.articleRepo.find({
       where: { categoryId: type },
-      relations: ['photos'],
+      relations: ['photos', 'writer', 'comments' ],
       order: { id: 'DESC' },
       take: this.PAGESIZE,
-      skip: offset * this.PAGESIZE,
+      skip: offset * this.PAGESIZE, 
     });
   
     const articlesWithStatus = [];
-  
+
     for (const article of articles) {
       const isLikedByUser = await this.likeRepo.findOne({
         where: { userId, articleId: article.id },
       });
-  
       const isClippedByUser = await this.clippingRepo.findOne({
         where: { userId, articleId: article.id },
       });
-  
+
+      const commentCount = article.comments.length;
+      const imageUrlList = article.photos.map(photo => photo.imageUrl); 
+
       articlesWithStatus.push({
-        ...article,
+        id: article.id,
+        categoryId: article.categoryId,
+        writerId: article.writerId,
+        writerNickName: article.writer?.nickName,
+        writerLevel:article.writer?.level,
+        title: article.title,
+        contextText: article.contextText,
+        date: article.date,
+        commentCount: commentCount,
+        like: article.like,
+        clipped: article.clipped,
         isLike: !!isLikedByUser,
         isClipped: !!isClippedByUser,
+        photo: imageUrlList,
       });
     }
     return articlesWithStatus;
   }
+
+
+  async findArticle(articleId: number, userId: number){
+    const article = await this.articleRepo.findOne({
+            where: { id: articleId},
+            relations: ['photos', 'writer', 'comments' ]
+    });
+    if (!article) { throw new NotFoundException('해당하는 게시글이 없습니다.'); }
+
+    const isLikedByUser = await this.likeRepo.findOne({
+      where: { userId, articleId: article.id },
+    });
+    const isClippedByUser = await this.clippingRepo.findOne({
+      where: { userId, articleId: article.id },
+    });
+    const imageUrlList = article.photos.map(photo => photo.imageUrl); 
+    const comments = await this.commentRepo.find({
+      where: {articleId: articleId},
+      relations: ['user']
+    });
+    const commentsWithStatus = [];
+    
+    for (const comment of comments) {
+      commentsWithStatus.push({
+        id:comment.id,
+        contextText: comment.contextText,
+        date: comment.date,
+        userId: comment.userId,
+        userNickName: comment.user.nickName,
+        userLevel: comment.user.level,
+      })
+    }
+    return {
+      id: article.id,
+      writerId: article.writerId,
+      writerNickName: article.writer?.nickName,
+      writerLevel:article.writer?.level,
+      title: article.title,
+      contextText: article.contextText,
+      date: article.date,
+      like: article.like,
+      clipped: article.clipped,
+      isLike: !!isLikedByUser,
+      isClipped: !!isClippedByUser,
+      photo: imageUrlList,
+      comments: commentsWithStatus,
+    }
+  }
+
+
   
   async findOneArticle(articleId: number){
     const article = await this.articleRepo.findOne({
@@ -65,32 +128,48 @@ export class ArticlesService {
 
 async findArticleByContext(searchString: string, userId: number,  offset: number) {
 
-  const articles = await this.articleRepo.createQueryBuilder('article')
-    .where('article.title LIKE :search', { search: `%${searchString}%` })
-    .orWhere('article.contextText LIKE :search', { search: `%${searchString}%` })
-    .orderBy('article.id', 'DESC')
-    .skip(+offset* this.PAGESIZE) // offset 적용
-    .take(this.PAGESIZE) // 페이지 사이즈 적용
-    .getMany();
+  const articles = await this.articleRepo.find({
+    where: [
+      { title: Like(`%${searchString}%`) },
+      { contextText: Like(`%${searchString}%`) },
+    ],
+    order: { id: 'DESC' },
+    take: this.PAGESIZE,
+    skip: +offset * this.PAGESIZE,
+    relations: ['photos', 'writer'], // 필요한 관계를 포함할 경우 추가
+  });
+  
+  const articlesWithStatus = [];
+  
+  for (const article of articles) {
+    const isLikedByUser = await this.likeRepo.findOne({
+      where: { userId, articleId: article.id },
+    });
+  
+    const isClippedByUser = await this.clippingRepo.findOne({
+      where: { userId, articleId: article.id },
+    });
 
-    const articlesWithStatus = [];
-  
-    for (const article of articles) {
-      const isLikedByUser = await this.likeRepo.findOne({
-        where: { userId, articleId: article.id },
-      });
-  
-      const isClippedByUser = await this.clippingRepo.findOne({
-        where: { userId, articleId: article.id },
-      });
-  
-      articlesWithStatus.push({
-        ...article,
-        isLike: !!isLikedByUser,
-        isClipped: !!isClippedByUser,
-      });
-    }
-    return articlesWithStatus;
+    const commentCount = article.comments.length;
+    const imageUrlList = article.photos.map(photo => photo.imageUrl); 
+
+    articlesWithStatus.push({
+      id: article.id,
+      writerId: article.writerId,
+      writerNickName: article.writer?.nickName,
+      writerLevel:article.writer?.level,
+      title: article.title,
+      contextText: article.contextText,
+      date: article.date,
+      commentCount: commentCount,
+      like: article.like,
+      clipped: article.clipped,
+      isLike: !!isLikedByUser,
+      isClipped: !!isClippedByUser,
+      photo: imageUrlList
+    });
+  }
+  return articlesWithStatus;
 }
 
   async create(
@@ -214,9 +293,23 @@ async findArticleByContext(searchString: string, userId: number,  offset: number
 
   async getComments(articleId: number){
     const comments = await this.commentRepo.find({
-      where: {articleId: articleId}
+      where: {articleId: articleId},
+      relations: ['user']
     });
-    return comments;
+
+    const commentsWithStatus = [];
+    for (const comment of comments) {
+      commentsWithStatus.push({
+        id:comment.id,
+        articleId: comment.articleId,
+        contextText: comment.contextText,
+        date: comment.date,
+        userId: comment.userId,
+        userNickName: comment.user.nickName,
+        userLevel: comment.user.level,
+      })
+    }
+    return commentsWithStatus;
   }
 
 
@@ -246,5 +339,4 @@ async findArticleByContext(searchString: string, userId: number,  offset: number
     await this.commentRepo.remove(comment);
     return '삭제완료';
   }
-
 }
