@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { WeatherProcessor } from './weather.processor';
+import { WeatherProcessor } from './processors/weather.processor';
 import { CoordinateTransition } from './api/coordinate.transition';
 import { format } from 'date-fns';
 
@@ -17,7 +17,7 @@ export class WeatherService {
   private readonly DATAGO_URL = process.env.DATAGO_URL;
   private readonly DATAGO_KEY = process.env.DATAGO_WEATEHR_KEY;
 
-  getCurrentTime(){
+  async getCurrentTime(){
     const today = new Date();
     const baseDate = format(today, 'yyyyMMdd');
     let currentTime;
@@ -26,10 +26,10 @@ export class WeatherService {
     } else {
         currentTime = today.getHours() - 1;
     }
-    return {baseDate, baseTime: this.formatNumber(currentTime)}
+    return {baseDate, baseTime: await this.formatNumber(currentTime)}
   }
 
-  formatNumber(number) {
+  async formatNumber(number) {
     let str = number.toString().padStart(2, '0');
     str += '00';
     return str;
@@ -53,8 +53,8 @@ export class WeatherService {
 
   async getTodayWeather(lat: number, lon: number){
     const {x, y} = await this.coordinateTransition.lamcproj(lon, lat);
-    console.log(x, y);
-    const {baseDate, baseTime} = this.getCurrentTime();
+    console.log(`coords : ${x}, ${y}`);
+    const {baseDate, baseTime} =await this.getCurrentTime();
     const url = `${this.DATAGO_URL}&serviceKey=${this.DATAGO_KEY}&base_date=${baseDate}&base_time=${baseTime}&nx=${x}&ny=${y}`;
     console.log(url)
 

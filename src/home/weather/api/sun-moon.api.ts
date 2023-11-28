@@ -17,6 +17,7 @@ export class SunMoonAPI{
       const sunset = this.convertToAMPM(response.sunset);
       const moonrise = this.convertToAMPM(response.moonrise);
       const moonset = this.convertToAMPM(response.moonset);
+
       return await {sunrise, sunset, moonrise, moonset};
 
     } catch (error) {
@@ -27,6 +28,9 @@ export class SunMoonAPI{
   }
 
   convertToAMPM(time) {
+    if (isNaN(Number(time))) {
+      return '--:--';
+    }
     let date = new Date(1970, 0, 1, time.substring(0, 2), time.substring(2));
     return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: true });
   }
