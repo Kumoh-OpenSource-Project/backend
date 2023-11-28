@@ -81,7 +81,6 @@ export class ArticlesService {
       where: { userId, articleId: article.id },
     });
     const imageUrlList = article.photos.map(photo => photo.imageUrl); 
-    const commentCount = article.comments.length;
     const comments = await this.commentRepo.find({
       where: {articleId: articleId},
       relations: ['user']
