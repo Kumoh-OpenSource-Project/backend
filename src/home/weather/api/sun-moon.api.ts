@@ -28,8 +28,8 @@ export class SunMoonAPI{
   }
 
   convertToAMPM(time) {
-    if (time.length !== 4 || isNaN(Number(time))) {
-      throw new Error('--:--');
+    if (isNaN(Number(time))) {
+      return '--:--';
     }
     let date = new Date(1970, 0, 1, time.substring(0, 2), time.substring(2));
     return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: true });
