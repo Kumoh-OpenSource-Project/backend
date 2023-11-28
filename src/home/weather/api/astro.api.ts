@@ -65,7 +65,7 @@ export class AstroAPI{
 
   async getWeekSeeing(lat: number, lon: number){
     const url = `${this.ASTRO_URL}&product=${this.ASTRO_WEEK}&lat=${lat}&lon=${lon}`;
-    const timePoints = [7, 15, 23, 31, 39];
+    const timePoints = [4, 12, 20, 28, 36];
     let seeings = [];
 
     try{

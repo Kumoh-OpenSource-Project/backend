@@ -69,12 +69,12 @@ export class OpenWeatherProcessor {
       return map;
     }, {});
     let weekWeathers: WeekWeatherDto[] = Object.values(result);
-    weekWeathers = await this.openWeatherWeekDayProcessing(weekWeathers, lat, lon);
+    weekWeathers = await this.getSunMoon(weekWeathers, lat, lon);
     weekWeathers = await this.weekSeeing(weekWeathers, lat, lon);
     return weekWeathers;
   }
 
-  async openWeatherWeekDayProcessing(weekWeathers, lat, lon){
+  async getSunMoon(weekWeathers, lat, lon){
     weekWeathers = await Promise.all(weekWeathers.map(async day => {
       const {sunrise, sunset, moonrise, moonset} = await this.sunMoonApi.getSunMoon(lat, lon, day.date);
       day.sunrise = sunrise;

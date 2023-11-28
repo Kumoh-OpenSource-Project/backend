@@ -3,7 +3,7 @@ import { HomeService } from './home.service';
 import { AstroAPI } from './weather/api/astro.api';
 import { UserAuthGuard } from 'src/guard/user.auth.guard';
 
-// @UseGuards(UserAuthGuard)
+@UseGuards(UserAuthGuard)
 @Controller('home')
 export class HomeController {
   constructor(private readonly homeService: HomeService, private astroAPI:AstroAPI) {}
