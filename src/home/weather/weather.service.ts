@@ -15,7 +15,7 @@ export class WeatherService {
   private readonly OPENWEATHER_KEY = process.env.OPENWEATHER_KEY;
 
   private readonly DATAGO_URL = process.env.DATAGO_URL;
-  private readonly DATAGO_KEY = process.env.DATAGO_WEATEHR_KEY;
+  private readonly DATAGO_KEY = process.env.DATAGO_WEATHER_KEY;
 
   async getCurrentTime(){
     const today = new Date();
