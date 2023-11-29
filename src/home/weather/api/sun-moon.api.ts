@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import axios from 'axios';
 import { format } from 'date-fns';
+import { Dayjs } from "dayjs";
 import { MoonAgeDto } from "src/common/dto/home/moon-age.dto";
 @Injectable()
 export class SunMoonAPI{
@@ -29,8 +30,8 @@ export class SunMoonAPI{
   }
 
   async getMoonAgeByMonth(year: string, mon: string){
-    const url = `${this.MOONAGE_URL}&serviceKey=${this.SUNMOON_KEY}&solYear=${year}&solMonth=${mon}`;
-    console.log(`getMoonAge: ${url}`)
+    const url = `${this.MOONAGE_URL}?numOfRows=31&serviceKey=${this.SUNMOON_KEY}&solYear=${year}&solMonth=${mon}`;
+    console.log(`getMoonAgeByMonth: ${url}`)
     try{
       let response = (await axios.get(url)).data.response.body.items.item;
       let moonAges: MoonAgeDto[] = [];
@@ -41,6 +42,22 @@ export class SunMoonAPI{
           moonAges.push(moonAge);
       });
       return moonAges;
+      
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+
+  async getMoonAgeByDay(today: string){
+    let year = today.slice(0,4);
+    let mon = today.slice(5,7);
+    let day = today.slice(8, 10);
+    const url = `${this.MOONAGE_URL}?serviceKey=${this.SUNMOON_KEY}&solYear=${year}&solMonth=${mon}&solDay=${day}`;
+    console.log(`getMoonAgeByDay: ${url}`)
+    try{
+      let response = (await axios.get(url)).data.response.body.items.item.lunAge;
+      return Math.floor(response);
       
     } catch (error) {
       console.log(error);

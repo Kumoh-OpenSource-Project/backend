@@ -10,4 +10,5 @@ export class CurrentWeatherDto{
   windSpeed: number;
   windDeg: number;
   seeing:number;
+  lunAge: number;
 }

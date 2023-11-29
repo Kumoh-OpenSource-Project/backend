@@ -35,6 +35,7 @@ export class OpenWeatherProcessor {
     weather.windSpeed = data.wind.speed;
     weather.windDeg = data.wind.deg;
     weather.seeing = await this.astroApi.getCurrentSeeing(lat, lon);
+    weather.lunAge = await this.sunMoonApi.getMoonAgeByDay(this.today);
     return weather;
   }
   
