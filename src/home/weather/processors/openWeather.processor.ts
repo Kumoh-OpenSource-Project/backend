@@ -21,6 +21,9 @@ export class OpenWeatherProcessor {
     }
 
   private today = dayjs().format('YYYY-MM-DD');
+  private year = this.today.slice(0,4);
+  private mon = this.today.slice(5,7);
+  private day = this.today.slice(8, 10);
 
   async openWeatherCurrentProcessing(data, lat, lon){
     const weather = new CurrentWeatherDto();
@@ -35,7 +38,7 @@ export class OpenWeatherProcessor {
     weather.windSpeed = data.wind.speed;
     weather.windDeg = data.wind.deg;
     weather.seeing = await this.astroApi.getCurrentSeeing(lat, lon);
-    weather.lunAge = await this.sunMoonApi.getMoonAgeByDay(this.today);
+    weather.lunAge = await this.sunMoonApi.getMoonAgeByDay(this.year, this.mon, this.day);
     return weather;
   }
   
@@ -72,6 +75,7 @@ export class OpenWeatherProcessor {
     let weekWeathers: WeekWeatherDto[] = Object.values(result);
     weekWeathers = await this.getSunMoon(weekWeathers, lat, lon);
     weekWeathers = await this.weekSeeing(weekWeathers, lat, lon);
+    weekWeathers = await this.weekLunAge(weekWeathers);
     return weekWeathers;
   }
 
@@ -90,7 +94,16 @@ export class OpenWeatherProcessor {
     async weekSeeing(weekWeathers, lat, lon){
       const seeings = await this.astroApi.getWeekSeeing(lat, lon);
       for(let i = 0; i < weekWeathers.length; i++) {
-      weekWeathers[i].seeing = seeings[i];
+        weekWeathers[i].seeing = seeings[i];
+      }
+      return weekWeathers;
+    }
+
+    async weekLunAge(weekWeathers)
+    {
+      const ages = await this.sunMoonApi.getMoonAgeByWeek(this.year, this.mon, Number(this.day));
+      for(let i = 0; i < weekWeathers.length; i++) {
+        weekWeathers[i].lunAge = ages[i];
       }
       return weekWeathers;
     }

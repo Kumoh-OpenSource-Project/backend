@@ -31,7 +31,7 @@ export class SunMoonAPI{
 
   async getMoonAgeByMonth(year: string, mon: string){
     const url = `${this.MOONAGE_URL}?numOfRows=31&serviceKey=${this.SUNMOON_KEY}&solYear=${year}&solMonth=${mon}`;
-    console.log(`getMoonAgeByMonth: ${url}`)
+    console.log(`getMoonAgeByMonth: ${url}`);
     try{
       let response = (await axios.get(url)).data.response.body.items.item;
       let moonAges: MoonAgeDto[] = [];
@@ -45,14 +45,12 @@ export class SunMoonAPI{
       
     } catch (error) {
       console.log(error);
-      return error;
+      return -1;
     }
   }
 
-  async getMoonAgeByDay(today: string){
-    let year = today.slice(0,4);
-    let mon = today.slice(5,7);
-    let day = today.slice(8, 10);
+  async getMoonAgeByDay(year, mon, day){
+
     const url = `${this.MOONAGE_URL}?serviceKey=${this.SUNMOON_KEY}&solYear=${year}&solMonth=${mon}&solDay=${day}`;
     console.log(`getMoonAgeByDay: ${url}`)
     try{
@@ -61,7 +59,33 @@ export class SunMoonAPI{
       
     } catch (error) {
       console.log(error);
-      return error;
+      return -1;
+    }
+  }
+
+  async getMoonAgeByWeek(year, mon, day){
+    const url = `${this.MOONAGE_URL}?numOfRows=31&serviceKey=${this.SUNMOON_KEY}&solYear=${year}&solMonth=${mon}`;
+    console.log(`getMoonAgeByWeek: ${url}`)
+    try{
+      let response = (await axios.get(url)).data.response.body.items.item;
+      console.log(`day: ${day}, ${response[day]['solDay']}`);
+      let moonAges = [];
+      let cnt = 0;
+      let idx = day;
+      while (cnt < 6) {
+        if (!response[idx]){
+          idx = 0;
+        }
+        let value = Math.floor(response[idx]['lunAge'])
+        moonAges.push(value);
+        idx++;
+        cnt++;
+      }
+      return moonAges;
+      
+    } catch (error) {
+      console.log(error);
+      return -1;
     }
   }
 
