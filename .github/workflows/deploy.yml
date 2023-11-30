@@ -56,6 +56,8 @@ jobs:
         echo "KAKAO_LOGIN_URL${{secrets.KAKAO_LOGIN_URL}}" >> .env
         echo "KAKAO_REDIRECT_URI=${{secrets.KAKAO_REDIRECT_URI}}" >> .env
         echo "KAKAO_USERINFO_URI=${{secrets.KAKAO_USERINFO_URI}}" >> .env
+        echo "SLACK_WEB_HOOK_URL=${{secrets.SLACK_WEB_HOOK_URL}}" >> .env
+
 
     - name: Install dependencies
       run: npm install
