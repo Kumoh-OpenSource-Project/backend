@@ -28,7 +28,7 @@ export class UserService {
 
  async fixUserInfo(serviceId: number, fixUserInfo: UserInfoDto){
     
-    if(fixUserInfo.userImage === undefined && fixUserInfo.userImage){
+    if(fixUserInfo.userImage === undefined && fixUserInfo.userNickName){
       return this.fixUserNickname(serviceId, fixUserInfo);
     }
     if(fixUserInfo.userNickName === undefined && fixUserInfo.userImage){
