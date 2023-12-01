@@ -48,6 +48,7 @@ jobs:
         echo "SUN_URL=${{secrets.SUN_URL}}" >> .env
         echo "SUNMOON_URL=${{secrets.SUNMOON_URL}}" >> .env
         echo "SUNMOON_KEY=${{secrets.SUNMOON_KEY}}" >> .env
+        echo "MOONAGE_URL=${{secrets.MOONAGE_URL}}" >> .env
         echo "ASTRO_URL=${{secrets.ASTRO_URL}}" >> .env
         echo "ASTRO_CURRENT=${{secrets.ASTRO_CURRENT}}" >> .env
         echo "ASTRO_WEEK=${{secrets.ASTRO_WEEK}}" >> .env
