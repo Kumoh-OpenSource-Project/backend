@@ -95,6 +95,7 @@ export class ArticlesService {
         userId: comment.userId,
         userNickName: comment.user.nickName,
         userLevel: comment.user.level,
+        userImage:comment.user.profilePhoto
       })
     }
     return {
