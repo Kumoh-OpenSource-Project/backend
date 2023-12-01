@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { HomeModule } from './home/home.module';
 import { UserModule } from './user/user.module';
 import { ArticleModule } from './articles/articles.module';
+import { ReportModule } from './report/report.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -26,6 +27,7 @@ import { ArticleModule } from './articles/articles.module';
   HomeModule,
   UserModule,
   ArticleModule,
+  ReportModule,
 ],
   controllers: [AppController],
   providers: [AppService],

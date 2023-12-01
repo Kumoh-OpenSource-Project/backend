@@ -102,6 +102,7 @@ export class ArticlesService {
       writerId: article.writerId,
       writerNickName: article.writer?.nickName,
       writerLevel:article.writer?.level,
+      writerImage: article.writer?.profilePhoto,
       title: article.title,
       contextText: article.contextText,
       date: article.date,
@@ -136,7 +137,7 @@ async findArticleByContext(searchString: string, userId: number,  offset: number
     order: { id: 'DESC' },
     take: this.PAGESIZE,
     skip: +offset * this.PAGESIZE,
-    relations: ['photos', 'writer'], // 필요한 관계를 포함할 경우 추가
+    relations: ['photos', 'writer','comments'], // 필요한 관계를 포함할 경우 추가
   });
   
   const articlesWithStatus = [];
@@ -150,7 +151,7 @@ async findArticleByContext(searchString: string, userId: number,  offset: number
       where: { userId, articleId: article.id },
     });
 
-    const commentCount = article.comments.length;
+    const commentCount = article.comments.length
     const imageUrlList = article.photos.map(photo => photo.imageUrl); 
 
     articlesWithStatus.push({
