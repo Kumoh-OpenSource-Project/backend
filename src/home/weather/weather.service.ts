@@ -37,6 +37,7 @@ export class WeatherService {
 
   async getOpenWeather(type: string, lat: number, lon: number){
     const url = `${this.OPENWEATHER_URL}/${type}?lat=${lat}&lon=${lon}&units=metric&lang=kr&appid=${this.OPENWEATHER_KEY}`;
+    console.log(`getOpenWeatehr : ${url}`)
     try{
       const response = await axios.get(url);
       if(!response.data['list']){
@@ -56,7 +57,7 @@ export class WeatherService {
     console.log(`coords : ${x}, ${y}`);
     const {baseDate, baseTime} =await this.getCurrentTime();
     const url = `${this.DATAGO_URL}&serviceKey=${this.DATAGO_KEY}&base_date=${baseDate}&base_time=${baseTime}&nx=${x}&ny=${y}`;
-    console.log(url)
+    console.log(`getTodayWeather: ${url}`)
 
     try{
       const response = (await axios.get(url)).data.response.body.items.item;
