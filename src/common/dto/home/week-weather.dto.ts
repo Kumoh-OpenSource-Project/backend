@@ -7,6 +7,7 @@ export class WeekWeatherDto{
   moonrise: string;
   moonset: string;
   seeing: string;
+  lunAge: number;
   weathers: WeekOneDayWeatherDto[]
 }
 

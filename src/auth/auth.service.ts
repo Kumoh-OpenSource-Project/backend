@@ -39,7 +39,7 @@ export class AuthService {
                       nickName: data.properties.nickname,
                       level: "수성",
                       kakaoId: data.id,
-                      profilePhoto: `""fh`
+                      profilePhoto: null,
                     });
                 
                 await this.userRepo.save(makedUser);

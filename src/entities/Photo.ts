@@ -10,7 +10,7 @@ export class Photo {
   @Column("int", { name: "article_id" })
   articleId: number;
 
-  @Column("varchar", { name: "image_url", nullable: true, length: 200 })
+  @Column("varchar", { name: "image_url", nullable: true, length: 500 })
   imageUrl: string | null;
 
   @ManyToOne(() => Article, (article) => article.photos, {
