@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article-dto';
 import { UpdateArticleDto } from './dto/update-article-dto';
 import { Like, Repository } from 'typeorm';
@@ -10,6 +10,8 @@ import { UserClipped } from 'src/entities/UserClipped';
 import { UserLike } from 'src/entities/UserLike';
 import { Comment } from 'src/entities/Comment';
 import { CreateCommentDto } from './dto/create-comment-dto';
+import { UserService } from 'src/user/user.service';
+import { User } from 'src/entities/User';
 
 @Injectable()
 export class ArticlesService {
@@ -22,9 +24,25 @@ export class ArticlesService {
     @InjectRepository(UserClipped) private clippingRepo: Repository<UserClipped>,
     @InjectRepository(UserLike) private likeRepo: Repository<UserLike>,
     @InjectRepository(Comment) private commentRepo: Repository<Comment>,
+    @InjectRepository(User) private userRepo: Repository<User>,
+    private userService: UserService,
   ){}
+
+  
+
+  async checkPlaceArticleValidation(userId: number){
+      const userInfo = await this.userService.getOneUserInfo(userId);
+      if(userInfo.level ==="수성"){
+        throw new UnauthorizedException(["장소 게시판은 금성 이상만 접근할 수 있습니다."])
+      }
+  
+  }
   
   async findAllArticle(type: number, userId: number, offset: number) {
+    
+    if(type === 2){
+      await this.checkPlaceArticleValidation(userId);
+    }
     const articles = await this.articleRepo.find({
       where: { categoryId: type },
       relations: ['photos', 'writer', 'comments' ],
@@ -73,7 +91,11 @@ export class ArticlesService {
             relations: ['photos', 'writer', 'comments' ]
     });
     if (!article) { throw new NotFoundException('해당하는 게시글이 없습니다.'); }
-
+    
+    if(article.categoryId === 2){
+      await this.checkPlaceArticleValidation(userId);
+    }
+    
     const isLikedByUser = await this.likeRepo.findOne({
       where: { userId, articleId: article.id },
     });
@@ -174,11 +196,38 @@ async findArticleByContext(searchString: string, userId: number,  offset: number
   return articlesWithStatus;
 }
 
+
+async checkLevelUp(userId: number): Promise<boolean>{
+  
+  //수성 금성 지구 화성 목성 토성 천왕성 해왕성 태양 블랙홀 대은하 순으로 게시글 10개 단위로 끊어서 등업 제공
+
+  const levels = ["수성", "금성", "지구", "화성", "목성", "토성", "천왕성", "해왕성", "태양", "블랙홀", "대은하"];
+  const userInfo = await this.userService.getOneUserInfo(userId);
+  const articleCount = (await this.articleRepo.find({ where: { writerId: userId } })).length;
+
+  console.log(articleCount);
+  const userLevelIndex = levels.indexOf(userInfo.level);
+  const requiredArticleCount = (userLevelIndex + 1) * 10;
+
+  if (articleCount >= requiredArticleCount - 1 && userLevelIndex < levels.length - 1) {
+    userInfo.level = levels[userLevelIndex + 1];
+    await this.userRepo.save(userInfo);
+    return true;
+  }
+  
+  return false;
+}
+
   async create(
     createArticleDto: CreateArticleDto,
     userId: number,
   ) {
+
+    const isLevelUp = await this.checkLevelUp(userId);
     const typeNum = CreateArticleDto.mapTypeToNumber(createArticleDto.type);
+    if(typeNum === 2){
+      await this.checkPlaceArticleValidation(userId);
+    }
     const newArticle = this.articleRepo.create({
       writerId: userId,
       categoryId: typeNum,
@@ -198,7 +247,12 @@ async findArticleByContext(searchString: string, userId: number,  offset: number
           await this.photoRepo.save(inputPhoto);
       }
     }
-    return '작성완료';  
+    const userInfo = await this.userService.getOneUserInfo(userId);
+    return {
+      userId: userInfo.id,
+      userLevel: userInfo.level, 
+      isLevelUp: isLevelUp
+    }
 }
 
   async update(
