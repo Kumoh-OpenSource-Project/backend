@@ -21,10 +21,9 @@ export class EventsService {
       .getOne();
 
     if (!nearestEvent || !nearestEvent.date) {
-      throw new Error('No future event found or event has no date');
+      throw new Error('이벤트 정보가 없습니다.');
     }
 
-    // await this.eventsRepository.delete(nearestEvent.id);
     const date = nearestEvent.date;
     const eventDate = moment(nearestEvent.date, 'YYYY-MM-DD').tz('Asia/Seoul');
     const remainingDays = eventDate.diff(now, 'days') + 1;
