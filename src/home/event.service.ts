@@ -27,7 +27,7 @@ export class EventsService {
     // await this.eventsRepository.delete(nearestEvent.id);
     const date = nearestEvent.date;
     const eventDate = moment(nearestEvent.date, 'YYYY-MM-DD').tz('Asia/Seoul');
-    const remainingDays = eventDate.diff(now, 'days');
+    const remainingDays = eventDate.diff(now, 'days') + 1;
 
     return {
       title: nearestEvent.title,
