@@ -5,7 +5,7 @@ import { SunMoonAPI } from './weather/api/sun-moon.api';
 import { YearPipe } from 'src/common/year.pipe';
 import { EventsService } from './event.service';
 
-// @UseGuards(UserAuthGuard)
+@UseGuards(UserAuthGuard)
 @Controller('home')
 export class HomeController {
   constructor(
