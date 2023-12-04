@@ -10,17 +10,20 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/entities/User';
 import { OpenWeatherProcessor } from './weather/processors/openWeather.processor';
 import { TodayWeatherProcessor } from './weather/processors/todayWeather.processor';
+import { EventsService } from './event.service';
+import { Events } from 'src/entities/Events';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      User
+      User, Events
     ]),
   ],
   controllers: [HomeController],
   providers: [
     HomeService,
     WeatherService,
+    EventsService,
     WeatherProcessor,
     OpenWeatherProcessor,
     TodayWeatherProcessor,
