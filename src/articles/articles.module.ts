@@ -8,6 +8,7 @@ import { Photo } from 'src/entities/Photo';
 import { UserClipped } from 'src/entities/UserClipped';
 import { UserLike } from 'src/entities/UserLike';
 import { Comment } from 'src/entities/Comment';
+import { UserService } from 'src/user/user.service';
 
 @Module({
   imports: [
@@ -21,6 +22,6 @@ import { Comment } from 'src/entities/Comment';
     ]),
   ],
   controllers: [ArticlesController],
-  providers: [ArticlesService],
+  providers: [ArticlesService, UserService],
 })
 export class ArticleModule {}
