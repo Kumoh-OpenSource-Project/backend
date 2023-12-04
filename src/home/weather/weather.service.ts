@@ -56,11 +56,11 @@ export class WeatherService {
     const {x, y} = this.coordinateTransition.lamcproj(lon, lat);
     console.log(`coords : ${x}, ${y}`);
     const {baseDate, baseTime} =await this.getCurrentTime();
-    const url = `${this.DATAGO_URL}&serviceKey=${this.DATAGO_KEY}&base_date=${baseDate}&base_time=${baseTime}&nx=${x}&ny=${y}`;
+    let url = `${this.DATAGO_URL}&serviceKey=${this.DATAGO_KEY}&base_date=${baseDate}&base_time=${baseTime}&nx=${x}&ny=${y}`;
     console.log(`getTodayWeather: ${url}`)
 
     try{
-      const response = (await axios.get(url)).data.response.body.items.item;
+      let response = (await axios.get(url)).data.response.body.items.item;
       return this.weatherProcessor.todayWeather(response, lat, lon);
     } catch (error) {
       console.log(error);
