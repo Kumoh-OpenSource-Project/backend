@@ -8,6 +8,7 @@ import { HomeModule } from './home/home.module';
 import { UserModule } from './user/user.module';
 import { ArticleModule } from './articles/articles.module';
 import { ReportModule } from './report/report.module';
+import { MypageModule } from './mypage/mypage.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -28,6 +29,7 @@ import { ReportModule } from './report/report.module';
   UserModule,
   ArticleModule,
   ReportModule,
+  MypageModule,
 ],
   controllers: [AppController],
   providers: [AppService],
