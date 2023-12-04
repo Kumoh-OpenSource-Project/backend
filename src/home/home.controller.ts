@@ -4,6 +4,7 @@ import { UserAuthGuard } from 'src/guard/user.auth.guard';
 import { SunMoonAPI } from './weather/api/sun-moon.api';
 import { YearPipe } from 'src/common/year.pipe';
 import { EventsService } from './event.service';
+import { PositiveCoordinate } from 'src/common/decorator/latlon.decorator';
 
 @UseGuards(UserAuthGuard)
 @Controller('home')
@@ -15,7 +16,8 @@ export class HomeController {
     ) {}
 
   @Get()
-  async getWeather(@Query('type') type: string, @Query('lat') lat: number, @Query('lon') lon:number){
+  async getWeather(@Query('type') type: string, @PositiveCoordinate() coordinates){
+    const { lat, lon } = coordinates;
     if(type === 'event'){
       return await this.eventService.getEventDDay();
     }

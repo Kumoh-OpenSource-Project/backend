@@ -53,6 +53,12 @@ export class CoordinateTransition {
         y = ro - ra * Math.cos(theta) + yo;
         x = Math.floor(x+1.5);
         y = Math.floor(y+1.5);
+        if( x > 110 ){
+            x = 85;
+        }
+        if (y > 160){
+            y = 96;
+        }
         return {x,y};
     }
 
