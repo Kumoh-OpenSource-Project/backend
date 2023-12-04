@@ -16,7 +16,7 @@ export class UserController {
         
     }
 
-    @Patch(':id')
+    @Patch()
     async fixUserInfo(
         @UserId() userId : number,
         @Body() fixedUserDto: UserInfoDto
