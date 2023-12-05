@@ -1,5 +1,5 @@
 import { BadRequestException } from "@nestjs/common";
-import {  IsArray, IsIn, IsNotEmpty, IsString, MinLength } from "class-validator";
+import {  IsArray, IsIn, IsNotEmpty, IsString, Matches, MinLength } from "class-validator";
 
 export class CreateArticleDto {
     
@@ -12,14 +12,14 @@ export class CreateArticleDto {
 
     @IsString()
     @IsNotEmpty()
-    @MinLength(5, { message: "제목은 5자 이상이여야 합니다." })
+    @Matches(/^[^\s]{2,}$/, { message: '공백 없이 최소 두 글자 이상 입력해주세요.' })
     title: string;
 
 
 
     @IsString()
     @IsNotEmpty()
-    @MinLength(10, { message: "내용은 10자 이상이여야 합니다." })
+    @Matches(/^[^\s]{5,}$/, { message: '공백 없이 최소 두 글자 이상 입력해주세요.' })
     content: string;
 
     @IsArray()
