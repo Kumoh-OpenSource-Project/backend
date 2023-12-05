@@ -13,7 +13,11 @@ import { CommentIdDto } from './dto/comment-id-dto';
 @Controller('articles')
 export class ArticlesController {
   constructor(private readonly articleService: ArticlesService) {}
-
+  
+  @Get('/bests')
+  async getBests(){
+    return await this.articleService.getBests();
+  }
   @Get()
   async findArticleById(
     @Query(ValidationPipe) query: ArticleInformationDto,
@@ -122,5 +126,7 @@ export class ArticlesController {
   ){
     return await this.articleService.deleteComment(commentIdDto.commentId , userId);
   }
+
+
 
 }
