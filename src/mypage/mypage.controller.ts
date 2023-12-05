@@ -13,11 +13,6 @@ export class MypageController {
     if(type === 'articles'){
       return this.mypageService.getArticles(userId);
     }
-    else if(type === 'likes'){
-      return this.mypageService.getLikes(userId);
-    }
-    else if(type === 'clipping'){
-      return this.mypageService.getClipped(userId);
-    }
+    return this.mypageService.getLikesOrClips(userId, type);
   }
 }
