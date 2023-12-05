@@ -399,14 +399,23 @@ async checkLevelUp(userId: number): Promise<boolean>{
     return '삭제완료';
   }
 
-  async getBests(){
+  async getBests(type){
     const offset = 1000 * 60 * 60 * 9;
     const today = new Date((new Date()).getTime() + offset);
     const aWeekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    
+    let category;
+    if (type === 'scope') {
+      category = 1;
+    } else if (type === 'place') {
+      category = 2;
+    } else if (type === 'photo') {
+      category = 3;
+    }
 
     const article = await this.articleRepo.findOne({
-      where: {date: MoreThan(aWeekAgo)},
-      order: { like: 'DESC' },
+      where: {categoryId: category, date: MoreThan(aWeekAgo), },
+      order: { like: 'DESC', id: 'DESC' },
       select: ['id', 'title', 'like']
     });
 

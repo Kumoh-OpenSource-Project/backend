@@ -15,8 +15,8 @@ export class ArticlesController {
   constructor(private readonly articleService: ArticlesService) {}
   
   @Get('/bests')
-  async getBests(){
-    return await this.articleService.getBests();
+  async getBests(@Query('type') type: string){
+    return await this.articleService.getBests(type);
   }
   @Get()
   async findArticleById(
