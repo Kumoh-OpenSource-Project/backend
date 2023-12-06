@@ -1,7 +1,7 @@
 import { BadRequestException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article-dto';
 import { UpdateArticleDto } from './dto/update-article-dto';
-import { Like, Repository } from 'typeorm';
+import { Like, MoreThan, Repository } from 'typeorm';
 import { Article } from 'src/entities/Article';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Photo } from 'src/entities/Photo';
@@ -12,6 +12,7 @@ import { Comment } from 'src/entities/Comment';
 import { CreateCommentDto } from './dto/create-comment-dto';
 import { UserService } from 'src/user/user.service';
 import { User } from 'src/entities/User';
+import * as moment from 'moment';
 
 @Injectable()
 export class ArticlesService {
@@ -396,5 +397,28 @@ async checkLevelUp(userId: number): Promise<boolean>{
     }
     await this.commentRepo.remove(comment);
     return '삭제완료';
+  }
+
+  async getBests(type){
+    const offset = 1000 * 60 * 60 * 9;
+    const today = new Date((new Date()).getTime() + offset);
+    const aWeekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    
+    let category;
+    if (type === 'scope') {
+      category = 1;
+    } else if (type === 'place') {
+      category = 2;
+    } else if (type === 'photo') {
+      category = 3;
+    }
+
+    const article = await this.articleRepo.findOne({
+      where: {categoryId: category, date: MoreThan(aWeekAgo), },
+      order: { like: 'DESC', id: 'DESC' },
+      select: ['id', 'title', 'like']
+    });
+
+    return article;
   }
 }

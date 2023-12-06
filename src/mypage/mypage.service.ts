@@ -5,6 +5,7 @@ import { User } from 'src/entities/User';
 import { UserClipped } from 'src/entities/UserClipped';
 import { UserLike } from 'src/entities/UserLike';
 import { Repository } from 'typeorm';
+import { getMineDto } from './dto/getMine.dto';
 
 @Injectable()
 export class MypageService {
@@ -21,18 +22,10 @@ export class MypageService {
 
   async getArticles(userId){
     try{
-      const articles = await this.articleRepo
-        .createQueryBuilder('article')
-        .select([
-          'article.id as articleId',
-          'article.title as title',
-          'article.context_text as content',
-          'article.date as writeDate',
-          'article.like as likes',
-          'article.clipped as clips',
-        ])
-        .where('article.writer_id = :userId', {userId})
-        .getRawMany()
+      const articles = await this.articleRepo.find({
+        where: {writerId: userId},
+        order: { id: 'DESC' },
+      });
 
       return articles;
     } catch (error) {
@@ -40,52 +33,45 @@ export class MypageService {
       throw error;
     }
   }
-  async getLikes(userId){
+
+  async getLikesOrClips(userId, type){
     try{
-      const articles = await this.LikeRepo
-        .createQueryBuilder('user_like')
-        .select([
-          'article.id as articleId',
-          'article.title as title',
-          'article.context_text as content',
-          'user.nick_name as nickName',
-          'article.date as writeDate'
-        ])
-        .innerJoin('article', 'article', 'user_like.article_id = article.id')
-        .innerJoin('user', 'user', 'user.id = article.writer_id')
-        .where('user_like.user_id = :userId', {userId})
-        .getRawMany()
+      let articles;
+      if(type === 'likes'){
+        articles = await this.LikeRepo.find({
+        where: {userId: userId},
+        order: { id: 'DESC' },
+        relations: ['article', 'user', 'article.writer']
+        });
+      }
+      else if(type === 'clipping'){
+        articles = await this.ClipRepo.find({
+          where: {userId: userId},
+          order: { id: 'DESC' },
+          relations: ['article', 'user', 'article.writer']
+          });
+      }
 
-      return articles;
+      const results = [];
 
+      for (const article of articles) {
+        let result = new getMineDto();
+        result.articleId = article.article.id;
+        result.category = article.article.categoryId;
+        result.title = article.article.title;
+        result.content = article.article.contextText;
+        result.nickName = article.article.writer.nickName;
+        result.writeDate = article.article.date;
 
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  }
-
-  async getClipped(userId){
-    try{
-      const articles = await this.ClipRepo
-        .createQueryBuilder('user_clipped')
-        .select([
-          'article.id as articleId',
-          'article.title as title',
-          'article.context_text as content',
-          'user.nick_name as nickName',
-          'article.date as writeDate'
-        ])
-        .innerJoin('article', 'article', 'user_clipped.article_id = article.id')
-        .innerJoin('user', 'user', 'user.id = article.writer_id')
-        .where('user_clipped.user_id = :userId', {userId})
-        .getRawMany()
-  
-      return articles;
+        results.push(result);
+      }
+      results.sort((a, b) => b.articleId - a.articleId);
+      return results;
 
     } catch (error) {
       console.error(error);
       throw error;
     }
   }
+
 }
