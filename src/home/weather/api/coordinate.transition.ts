@@ -22,26 +22,24 @@ export class CoordinateTransition {
             throw new Error('lon should be in the range of -180 to 180 and lat should be in the range of -90 to 90');
         }
         
-        let re, sn, sf, ro;
+        let sn, sf, ro;
         let alon, alat, xn, yn, ra, theta;
         let x = 0;
         let y = 0;
 
-        // if (first === 0) {
-            re = Re / grid;
-            slat1 = slat1 * DEGRAD;
-            slat2 = slat2 * DEGRAD;
-            olon = olon * DEGRAD;
-            olat = olat * DEGRAD;
+        const re = Re / grid;
+        slat1 = slat1 * DEGRAD;
+        slat2 = slat2 * DEGRAD;
+        olon = olon * DEGRAD;
+        olat = olat * DEGRAD;
 
-            sn = Math.tan(PI * 0.25 + slat2 * 0.5) / Math.tan(PI * 0.25 + slat1 * 0.5);
-            sn = Math.log(Math.cos(slat1) / Math.cos(slat2)) / Math.log(sn);
-            sf = Math.tan(PI * 0.25 + slat1 * 0.5);
-            sf = Math.pow(sf, sn) * Math.cos(slat1) / sn;
-            ro = Math.tan(PI * 0.25 + olat * 0.5);
-            ro = re * sf / Math.pow(ro, sn);
-            first = 1;
-        // }
+        sn = Math.tan(PI * 0.25 + slat2 * 0.5) / Math.tan(PI * 0.25 + slat1 * 0.5);
+        sn = Math.log(Math.cos(slat1) / Math.cos(slat2)) / Math.log(sn);
+        sf = Math.tan(PI * 0.25 + slat1 * 0.5);
+        sf = Math.pow(sf, sn) * Math.cos(slat1) / sn;
+        ro = Math.tan(PI * 0.25 + olat * 0.5);
+        ro = re * sf / Math.pow(ro, sn);
+        first = 1;
 
         ra = Math.tan(PI * 0.25 + lat * DEGRAD * 0.5);
         ra = re * sf / Math.pow(ra, sn);
