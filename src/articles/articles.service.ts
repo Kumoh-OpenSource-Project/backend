@@ -419,6 +419,8 @@ async checkLevelUp(userId: number): Promise<boolean>{
       select: ['id', 'title', 'like']
     });
 
+    console.log(`get Bests of ${type}`);
+
     return article;
   }
 }
