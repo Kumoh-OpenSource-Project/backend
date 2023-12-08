@@ -1,4 +1,4 @@
-import { IsIn, IsNotEmpty, IsNumberString, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsIn, IsNotEmpty, IsNumberString, IsOptional, IsString, Matches, MinLength } from 'class-validator';
 import { BadRequestException } from '@nestjs/common';
 
 export class ArticleInformationDto {
@@ -9,7 +9,7 @@ export class ArticleInformationDto {
 
     @IsOptional()
     @IsString()
-    @MinLength(2, {message: '최소 두글자 이상 작성해주세요.'})
+    @Matches(/^[^\s]{2,}$/, { message: '공백 없이 최소 두 글자 이상 입력해주세요.' })
     search?: string;
 
     @IsNumberString()
