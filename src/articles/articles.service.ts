@@ -1,7 +1,7 @@
 import { BadRequestException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article-dto';
 import { UpdateArticleDto } from './dto/update-article-dto';
-import { Like, MoreThan, Repository } from 'typeorm';
+import { Like, MoreThan, Not, Repository } from 'typeorm';
 import { Article } from 'src/entities/Article';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Photo } from 'src/entities/Photo';
@@ -153,17 +153,43 @@ export class ArticlesService {
 
 
 async findArticleByContext(searchString: string, userId: number,  offset: number) {
+  
+  const userInfo = await this.userService.getOneUserInfo(userId);
+  let articles;
 
-  const articles = await this.articleRepo.find({
-    where: [
-      { title: Like(`%${searchString}%`) },
-      { contextText: Like(`%${searchString}%`) },
-    ],
-    order: { id: 'DESC' },
-    take: this.PAGESIZE,
-    skip: +offset * this.PAGESIZE,
-    relations: ['photos', 'writer','comments'], // 필요한 관계를 포함할 경우 추가
-  });
+  if(userInfo.level === "수성"){
+    articles = await this.articleRepo.find({
+      where: [
+        { 
+          categoryId: Not(2),
+          title: Like(`%${searchString}%`),
+        },
+        { 
+          categoryId: Not(2),
+          contextText: Like(`%${searchString}%`),
+        }
+
+      ],
+      order: { id: 'DESC' },
+      take: this.PAGESIZE,
+      skip: +offset * this.PAGESIZE,
+      relations: ['photos', 'writer', 'comments'],
+    });
+    
+  }else{
+    articles = await this.articleRepo.find({
+      where: [
+        { title: Like(`%${searchString}%`) },
+        { contextText: Like(`%${searchString}%`) },
+      ],
+      order: { id: 'DESC' },
+      take: this.PAGESIZE,
+      skip: +offset * this.PAGESIZE,
+      relations: ['photos', 'writer','comments'], // 필요한 관계를 포함할 경우 추가
+    });
+  }
+
+
   
   const articlesWithStatus = [];
   
@@ -185,6 +211,7 @@ async findArticleByContext(searchString: string, userId: number,  offset: number
       writerNickName: article.writer?.nickName,
       writerLevel:article.writer?.level,
       writerImage: article.writer?.profilePhoto,
+      categoryId: article.categoryId,
       title: article.title,
       contextText: article.contextText,
       date: article.date,

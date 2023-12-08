@@ -1,5 +1,5 @@
 import { BadRequestException } from "@nestjs/common";
-import {  IsArray, IsIn, IsNotEmpty, IsNumber, IsString, MinLength } from "class-validator";
+import {  IsArray, IsIn, IsNotEmpty, IsNumber, IsString, Matches, MinLength } from "class-validator";
 
 export class CreateCommentDto {
     @IsNumber()
@@ -8,6 +8,6 @@ export class CreateCommentDto {
 
     @IsString()
     @IsNotEmpty()
-    @MinLength(2, { message: "내용은 2자 이상이여야 합니다." })
+    @Matches(/^[^\s]{2,}$/, { message: '공백 없이 최소 두 글자 이상 입력해주세요.' })
     content: string;
 }
