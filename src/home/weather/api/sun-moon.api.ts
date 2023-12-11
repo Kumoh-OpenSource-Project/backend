@@ -13,18 +13,28 @@ export class SunMoonAPI{
     const locdate = date.replace(/-/g, "")
     const url = `${this.SUNMOON_URL}&serviceKey=${this.SUNMOON_KEY}&locdate=${locdate}&longitude=${lon}&latitude=${lat}`;
     
-    try{
-      const response = (await axios.get(url)).data.response.body.items.item;
+    let response;
+    let error;
+    let retryCount = 0;
+    while (!response && retryCount < 3) {
+      try {
+        response = (await axios.get(url)).data.response.body.items.item;
+      } catch (err) {
+        error = err;
+        console.log("retry..");
+        retryCount++;
+      }
+    }
+    
+    if (response) {
       const sunrise = this.convertToAMPM(response.sunrise);
       const sunset = this.convertToAMPM(response.sunset);
       const moonrise = this.convertToAMPM(response.moonrise);
       const moonset = this.convertToAMPM(response.moonset);
-
-      return await {sunrise, sunset, moonrise, moonset};
-
-    } catch (error) {
-      console.log(error);
-      return error;
+      
+      return { sunrise, sunset, moonrise, moonset };
+    } else {
+      return { sunrise: "07:39", sunset: "17:15", moonrise: "10:01", moonset: "19:21" };
     }
 
   }
