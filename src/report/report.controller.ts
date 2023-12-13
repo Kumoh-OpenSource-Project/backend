@@ -22,9 +22,9 @@ export class ReportController {
   @Get()
   async delete(
     @Query('resource') resource: string,
-    @Query('id') id : string,
+    @Query('id') id : number,
   ){
-      return await this.reportService.deleteContent(resource, +id);
+      return await this.reportService.deleteContent(resource, id);
     }
   
 
